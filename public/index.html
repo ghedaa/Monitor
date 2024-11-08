@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Viewer</title>
+    <style>
+        body {
+            font-family: monospace; /* Monospace font for text file appearance */
+            margin: 20px;
+            background-color: #f9f9f9; /* Light gray background for better readability */
+        }
+        h1 {
+            color: #333; /* Darker text for header */
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007BFF; /* Bootstrap primary color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .logBox {
+            border: 1px solid #ccc; /* Light gray border */
+            padding: 10px; /* Padding for log display */
+            border-radius: 5px; /* Rounded corners */
+            margin-bottom: 20px; /* Space between boxes */
+        }
+        .info {
+            background-color: #d9edf7; /* Light blue background for info messages */
+        }
+        .warning {
+            background-color: #fcf8e3; /* Light yellow background for warning messages */
+        }
+        .error {
+            background-color: #f2dede; /* Light red background for error messages */
+        }
+    </style>
+</head>
+<body>
+    <h1>Log Viewer</h1>
+    <button id="loadLogs">Load Logs</button>
+    
+    <div id="infoLogs" class="logBox info"></div>
+    <div id="warningLogs" class="logBox warning"></div>
+    <div id="errorLogs" class="logBox error"></div>
+
+    <script>
+        document.getElementById('loadLogs').addEventListener('click', function() {
+            // Fetch log data from the server
+            fetch('/logs')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text(); // Get the response as text
+                })
+                .then(data => {
+                    // Clear previous logs
+                    document.getElementById('infoLogs').innerHTML = ''; 
+                    document.getElementById('warningLogs').innerHTML = ''; 
+                    document.getElementById('errorLogs').innerHTML = ''; 
+
+                    // Split logs on new lines and format each entry
+                    const entries = data.trim().split('\n');
+
+                    entries.forEach(entry => {
+                        // Determine the type of log and append to the corresponding box
+                        if (entry.includes('ERROR')) {
+                            document.getElementById('errorLogs').innerHTML += `<div>${entry}</div>`;
+                        } else if (entry.includes('WARNING')) {
+                            document.getElementById('warningLogs').innerHTML += `<div>${entry}</div>`;
+                        } else {
+                            document.getElementById('infoLogs').innerHTML += `<div>${entry}</div>`;
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching logs:', error);
+                    document.getElementById('infoLogs').innerText = 'Error loading logs';
+                });
+        });
+    </script>
+</body>
+</html>
